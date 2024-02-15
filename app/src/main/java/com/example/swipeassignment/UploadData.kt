@@ -6,8 +6,10 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
@@ -16,8 +18,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import com.example.swipeassignment.postdata.ui.AddProductViewModel
 import com.example.swipeassignment.postdata.ui.ViewModelFactory
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class UploadData : AppCompatActivity() {
     private lateinit var permReqLauncher: ActivityResultLauncher<Array<String>>
@@ -34,6 +40,7 @@ class UploadData : AppCompatActivity() {
     private lateinit var uploadBtn: Button
     private lateinit var pickBtn: Button
 
+    private lateinit var imageViewPreview: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,34 +55,25 @@ class UploadData : AppCompatActivity() {
         uploadBtn = findViewById(R.id.buttonSubmit)
         pickBtn = findViewById(R.id.buttonChooseImage)
 
-        var name: String = ""
-        var type: String = ""
-        var price: String = ""
-        var tax: String = ""
+        imageViewPreview = findViewById(R.id.imageViewPreview)
 
         val viewModelFactory = ViewModelFactory(this)
-
         addProductViewModel =
             ViewModelProvider(this, viewModelFactory).get(AddProductViewModel::class.java)
-
 
         addProductViewModel.response.observe(this, Observer {
             if (it.isNotEmpty()) {
                 Toast.makeText(this, it, Toast.LENGTH_LONG).show()
                 addProductViewModel.rest()
             }
-
         })
-
 
         addProductViewModel.connectionError.observe(this, Observer {
             if (it.isNotEmpty()) {
                 Toast.makeText(this, it, Toast.LENGTH_LONG).show()
                 addProductViewModel.rest()
             }
-
         })
-
 
         permReqLauncher =
             registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
@@ -85,60 +83,51 @@ class UploadData : AppCompatActivity() {
                 } else {
                     Toast.makeText(this@UploadData, "No Permission Granted", Toast.LENGTH_SHORT)
                         .show()
-
                 }
             }
 
-
         pickBtn.setOnClickListener {
-
             pick()
         }
         uploadBtn.setOnClickListener {
-            name = prodName.text.toString().trim()
-            type = prodType.text.toString().trim()
-            price = prodPrice.text.toString().trim()
-            tax = prodTax.text.toString().trim()  // Assign to prodTax
+            val name = prodName.text.toString().trim()
+            val type = prodType.text.toString().trim()
+            val price = prodPrice.text.toString().trim()
+            val tax = prodTax.text.toString().trim()
             upload(name, type, price, tax)
         }
-
     }
 
-    fun upload(name: String, type: String, price: String, tax: String) {
+    private fun upload(name: String, type: String, price: String, tax: String) {
         Toast.makeText(this, "uploading...", Toast.LENGTH_SHORT).show()
 
-
-//
-//        Log.d("aaaabbbb", "$name $type $price $tax")
-
-        addProductViewModel.upload(
-            name,
-            type,
-            price,
-            tax,
-            selectedFile
-        )
-
+        addProductViewModel.viewModelScope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    addProductViewModel.upload(name, type, price, tax, selectedFile)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
-    fun pick() {
+    private fun pick() {
         if (hasPermissions(this@UploadData, Permissions)) {
-
             selectImage()
-
         } else {
             permReqLauncher.launch(Permissions)
         }
     }
 
     private var resultLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult())
-        { result ->
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
-                // Get the Image from data
-                selectedFile = result.data!!.data!!
+                selectedFile = result.data?.data!!
+                imageViewPreview.setImageURI(selectedFile)
+                imageViewPreview.visibility = View.VISIBLE
+                pickBtn.visibility = View.GONE
                 tvFile.text = selectedFile.path.toString()
-
             }
         }
 
@@ -146,12 +135,10 @@ class UploadData : AppCompatActivity() {
         val intent = Intent(Intent.ACTION_GET_CONTENT)
         intent.type = "*/*"
         resultLauncher.launch(intent)
-
     }
 
     private fun hasPermissions(context: Context, permissions: Array<String>): Boolean =
         permissions.all {
             ActivityCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
         }
-
 }

@@ -55,7 +55,6 @@ class BottomSheetDialogFragment : BottomSheetDialogFragment() {
         tax = editTextTax.text.toString()
 
         buttonSubmit.setOnClickListener {
-//
             if (productName.isEmpty()) {
                 Toast.makeText(context, "Please enter product name first.", Toast.LENGTH_SHORT)
                     .show()

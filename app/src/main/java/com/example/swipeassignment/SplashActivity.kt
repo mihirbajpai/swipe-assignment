@@ -6,6 +6,10 @@ import android.os.Handler
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class SplashActivity : AppCompatActivity() {
 
@@ -18,9 +22,21 @@ class SplashActivity : AppCompatActivity() {
         val zoomInAnimation = AnimationUtils.loadAnimation(this, R.anim.zoom_in)
         imageViewLogo.startAnimation(zoomInAnimation)
 
-        Handler().postDelayed({
+        lifecycleScope.launch(Dispatchers.IO) {
+            fetchData()
+        }
+    }
+
+    private suspend fun fetchData() {
+        delay(2000)
+
+        navigateToMainActivity()
+    }
+
+    private fun navigateToMainActivity() {
+        Handler(mainLooper).postDelayed({
             startActivity(Intent(this, MainActivity::class.java))
             finish()
-        }, 3000)
+        }, 1000)
     }
 }

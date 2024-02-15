@@ -2,7 +2,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginTop="10dp"
     android:background="@color/white"
     android:orientation="vertical"
     android:padding="16dp">
@@ -25,7 +24,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="Enter Product Name.*" />
+            android:hint="Enter Product Name.*"
+            android:textColor="#454545" />
     </LinearLayout>
 
     <LinearLayout
@@ -47,7 +47,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="Enter Product Type.*" />
+            android:hint="Enter Product Type.*"
+            android:textColor="#454545" />
     </LinearLayout>
 
     <LinearLayout
@@ -70,7 +71,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:hint="Enter Selling Price.*"
-            android:inputType="number" />
+            android:inputType="number"
+            android:textColor="#454545" />
     </LinearLayout>
 
     <LinearLayout
@@ -93,14 +95,16 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:hint="Enter Tax Rate.*"
-            android:inputType="number" />
+            android:inputType="number"
+            android:textColor="#454545" />
     </LinearLayout>
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="" />
+        android:text=""
+        android:textColor="@color/black" />
 
     <Button
         android:id="@+id/buttonChooseImage"
@@ -114,8 +118,8 @@
 
     <ImageView
         android:id="@+id/imageViewPreview"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
         android:layout_marginTop="8dp"
         android:visibility="gone" />
 

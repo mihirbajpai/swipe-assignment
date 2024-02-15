@@ -1,17 +1,23 @@
 package com.example.swipeassignment
+//Mihir Bajpai
+
 
 import ProductAdapter
-import android.Manifest
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.view.Menu
 import android.view.View
 import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -22,7 +28,6 @@ import com.example.swipeassignment.viewmodel.ProductViewModel
 import com.example.swipeassignment.viewmodel.ProductViewModelFactory
 import java.util.Locale
 
-
 class MainActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
@@ -32,15 +37,32 @@ class MainActivity : AppCompatActivity() {
     private lateinit var progressBar: ProgressBar
     private lateinit var productList: List<Product>
 
-    private var Permissions = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
-
-//    private lateinit var networkChangeReceiver: NetworkChangeReceiver
-//    private lateinit var connectivityStatusReceiver: BroadcastReceiver
-//    private var isConnected: Boolean=true
+    private lateinit var networkChangeReceiver: NetworkChangeReceiver
+    private lateinit var connectivityStatusReceiver: BroadcastReceiver
+    private var isConnected: Boolean = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        networkChangeReceiver = NetworkChangeReceiver()
+        registerReceiver(
+            networkChangeReceiver, IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
+        )
+
+        connectivityStatusReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                isConnected = intent?.getBooleanExtra("is_connected", false) ?: false
+                if (!isConnected) {
+                    Toast.makeText(this@MainActivity, "You are offline.", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this@MainActivity, "You are online.", Toast.LENGTH_SHORT).show()
+                    viewModel.fetchProducts()
+                }
+            }
+        }
+        LocalBroadcastManager.getInstance(this)
+            .registerReceiver(connectivityStatusReceiver, IntentFilter("network_status"))
 
         recyclerView = findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
@@ -48,7 +70,6 @@ class MainActivity : AppCompatActivity() {
         progressBar = findViewById(R.id.progressBar)
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
 
-        // Make progress bar visible
         progressBar.visibility = View.VISIBLE
 
         val repository = ProductRepository(RetrofitClient.productService)
@@ -57,50 +78,29 @@ class MainActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this, viewModelFactory).get(ProductViewModel::class.java)
 
         viewModel.products.observe(this, Observer { products ->
-            productList = products
-            productAdapter = ProductAdapter(this, products)
-            recyclerView.adapter = productAdapter
-            hideLoading()
+            products?.let {
+                productList = it
+                productAdapter = ProductAdapter(this, it)
+                recyclerView.adapter = productAdapter
+                hideLoading()
+            }
         })
 
-        viewModel.fetchProducts()
-
         swipeRefreshLayout.setOnRefreshListener {
-//            if(isConnected){
-            showLoading()
-            viewModel.fetchProducts()
-//            }else{
-//                swipeRefreshLayout.isRefreshing=false
-//            }
+            if (isConnected) {
+                viewModel.fetchProducts()
+                showLoading()
+            } else {
+                Toast.makeText(
+                    this,
+                    "You are offline. Please check your internet connection.",
+                    Toast.LENGTH_SHORT
+                ).show()
+                swipeRefreshLayout.isRefreshing = false
+            }
         }
-
-//        networkChangeReceiver = NetworkChangeReceiver()
-//        registerReceiver(
-//            networkChangeReceiver,
-//            IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
-//        )
-//
-//        connectivityStatusReceiver = object : BroadcastReceiver() {
-//            override fun onReceive(context: Context?, intent: Intent?) {
-//                isConnected = intent?.getBooleanExtra("is_connected", false) ?: false
-//                if (!isConnected) {
-//                    // Show offline message
-//                    Toast.makeText(this@MainActivity, "You are offline.", Toast.LENGTH_SHORT).show()
-//                } else {
-//                    // Hide offline message
-//                    Toast.makeText(this@MainActivity, "You are online.", Toast.LENGTH_SHORT).show()
-//                }
-//            }
-//        }
-//        LocalBroadcastManager.getInstance(this)
-//            .registerReceiver(connectivityStatusReceiver, IntentFilter("network_status"))
-
     }
 
-    private fun showBottomSheetDialog() {
-        val bottomSheetFragment = BottomSheetDialogFragment()
-        bottomSheetFragment.show(supportFragmentManager, bottomSheetFragment.tag)
-    }
 
     //Action Bar
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -120,8 +120,6 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-
-
         addItem.setOnMenuItemClickListener {
 //            showBottomSheetDialog()
 
@@ -132,12 +130,13 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
-
     //Search Item
     private fun filterProductList(query: String) {
         val filteredList: MutableList<Product> = ArrayList<Product>()
         for (product in productList) {
-            if (product.product_name.toLowerCase().contains(query.lowercase(Locale.getDefault()))) {
+            if (product.product_name.toLowerCase(Locale.getDefault())
+                    .contains(query.lowercase(Locale.getDefault()))
+            ) {
                 filteredList.add(product)
             }
         }
@@ -145,7 +144,6 @@ class MainActivity : AppCompatActivity() {
             productAdapter.setFilter(filteredList)
         }
     }
-
 
     //Loading item
     private fun showLoading() {
@@ -166,5 +164,4 @@ class MainActivity : AppCompatActivity() {
     fun getContext(): Context {
         return this;
     }
-
 }
