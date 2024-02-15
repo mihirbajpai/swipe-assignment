@@ -23,13 +23,13 @@ interface ProductService {
         @Part("product_type") product_type: RequestBody?,
         @Part("price") price: RequestBody?,
         @Part("tax") tax: RequestBody?,
-        @Part file: MultipartBody.Part?) : Call<ResponseBody>
-
+        @Part file: MultipartBody.Part?
+    ): Call<ResponseBody>
 
 
     companion object {
         var retrofitService: ProductService? = null
-        fun getInstance() : ProductService {
+        fun getInstance(): ProductService {
             if (retrofitService == null) {
                 val gson = GsonBuilder()
                     .setLenient()

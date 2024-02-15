@@ -7,7 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import com.example.swipeassignment.MainActivity
 import com.example.swipeassignment.model.Product
 import com.example.swipeassignment.service.ProductService
-import com.example.swipeassignment.utils.FileUtils
+import com.example.swipeassignment.postdata.utils.FileUtils
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody

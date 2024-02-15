@@ -1,4 +1,4 @@
-package com.example.swipeassignment.ui
+package com.example.swipeassignment.postdata.ui
 
 import android.content.Context
 import androidx.lifecycle.ViewModel

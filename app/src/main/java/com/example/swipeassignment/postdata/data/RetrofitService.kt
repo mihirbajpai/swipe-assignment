@@ -1,4 +1,4 @@
-package com.example.swipeassignment.data
+package com.example.swipeassignment.postdata.data
 
 import com.google.gson.GsonBuilder
 import okhttp3.MultipartBody

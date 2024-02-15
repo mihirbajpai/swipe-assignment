@@ -1,4 +1,4 @@
-package com.example.swipeassignment.utils;
+package com.example.swipeassignment.postdata.utils;
 
 /*
  * Copyright (C) 2018 OpenIntents.org

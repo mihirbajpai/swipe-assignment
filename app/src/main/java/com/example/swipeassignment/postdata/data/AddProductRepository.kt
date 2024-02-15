@@ -1,11 +1,11 @@
-package com.example.swipeassignment.data
+package com.example.swipeassignment.postdata.data
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import android.widget.Toast
 import androidx.lifecycle.*
-import com.example.swipeassignment.utils.FileUtils
+import com.example.swipeassignment.postdata.utils.FileUtils
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody

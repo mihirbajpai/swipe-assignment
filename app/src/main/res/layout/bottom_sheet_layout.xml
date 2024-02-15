@@ -5,7 +5,6 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <!-- Product Name -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -25,7 +24,6 @@
             android:hint="Enter Product Name.*" />
     </LinearLayout>
 
-    <!-- Product Type -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -46,7 +44,6 @@
             android:hint="Enter Product Type.*" />
     </LinearLayout>
 
-    <!-- Selling Price -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -68,7 +65,6 @@
             android:hint="Enter Selling Price.*" />
     </LinearLayout>
 
-    <!-- Tax Rate -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -90,7 +86,6 @@
             android:hint="Enter Tax Rate.*" />
     </LinearLayout>
 
-    <!-- Button to Choose Image -->
     <Button
         android:id="@+id/buttonChooseImage"
         android:layout_width="150dp"
@@ -101,7 +96,6 @@
         android:text="Choose Image"
         android:textColor="@color/white" />
 
-    <!-- Image Preview -->
     <ImageView
         android:id="@+id/imageViewPreview"
         android:layout_width="100dp"
@@ -109,7 +103,6 @@
         android:layout_marginTop="8dp"
         android:visibility="gone" />
 
-    <!-- Button to Submit Data -->
     <Button
         android:id="@+id/buttonSubmit"
         android:layout_width="match_parent"

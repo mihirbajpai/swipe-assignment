@@ -6,8 +6,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
-import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -18,8 +16,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.example.swipeassignment.ui.AddProductViewModel
-import com.example.swipeassignment.ui.ViewModelFactory
+import com.example.swipeassignment.postdata.ui.AddProductViewModel
+import com.example.swipeassignment.postdata.ui.ViewModelFactory
 
 class UploadData : AppCompatActivity() {
     private lateinit var permReqLauncher: ActivityResultLauncher<Array<String>>
@@ -50,10 +48,10 @@ class UploadData : AppCompatActivity() {
         uploadBtn = findViewById(R.id.buttonSubmit)
         pickBtn = findViewById(R.id.buttonChooseImage)
 
-        var name: String=""
-        var type: String=""
-        var price: String=""
-        var tax: String=""
+        var name: String = ""
+        var type: String = ""
+        var price: String = ""
+        var tax: String = ""
 
         val viewModelFactory = ViewModelFactory(this)
 
@@ -92,11 +90,11 @@ class UploadData : AppCompatActivity() {
             }
 
 
-        pickBtn.setOnClickListener{
+        pickBtn.setOnClickListener {
 
             pick()
         }
-        uploadBtn.setOnClickListener{
+        uploadBtn.setOnClickListener {
             name = prodName.text.toString().trim()
             type = prodType.text.toString().trim()
             price = prodPrice.text.toString().trim()
@@ -108,8 +106,6 @@ class UploadData : AppCompatActivity() {
 
     fun upload(name: String, type: String, price: String, tax: String) {
         Toast.makeText(this, "uploading...", Toast.LENGTH_SHORT).show()
-
-
 
 
 //

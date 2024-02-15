@@ -1,10 +1,10 @@
-package com.example.swipeassignment.ui
+package com.example.swipeassignment.postdata.ui
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.*
-import com.example.swipeassignment.data.AddProductRepository
+import com.example.swipeassignment.postdata.data.AddProductRepository
 
 @SuppressLint("StaticFieldLeak")
 class AddProductViewModel constructor(ctx: Context) : ViewModel() {

@@ -1,14 +1,13 @@
 package com.example.swipeassignment.viewmodel
 
-import android.content.Context
 import android.net.Uri
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.launch
 import com.example.swipeassignment.model.Product
 import com.example.swipeassignment.repository.ProductRepository
+import kotlinx.coroutines.launch
 
 class ProductViewModel(private val repository: ProductRepository) : ViewModel() {
 
@@ -47,7 +46,8 @@ class ProductViewModel(private val repository: ProductRepository) : ViewModel() 
             product_type,
             price,
             tax,
-            fileUri)
+            fileUri
+        )
     }
 
 }
