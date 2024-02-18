@@ -20,7 +20,7 @@ class ProductAdapter(private val context: Context, private var productList: List
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val product = productList[position]
 
-        holder.textViewName.text = product.product_name
+        holder.textViewName.text = "Title: ${ product.product_name }"
         holder.textViewPrice.text = "Price: ${product.price}$"
         holder.textViewType.text = "Type: ${product.product_type}"
         holder.textViewTax.text = "Tax: ${product.tax}%"

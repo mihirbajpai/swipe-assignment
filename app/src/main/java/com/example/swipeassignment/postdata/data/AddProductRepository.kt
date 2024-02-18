@@ -6,6 +6,7 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.lifecycle.*
 import com.example.swipeassignment.postdata.utils.FileUtils
+import com.example.swipeassignment.service.ProductService
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -48,7 +49,7 @@ class AddProductRepository constructor(private val ctx: Context) {
         val priceRequestBody: RequestBody = price.toRequestBody("text/plain".toMediaTypeOrNull())
         val taxRequestBody: RequestBody = tax.toRequestBody("text/plain".toMediaTypeOrNull())
 
-        RetrofitService.getInstance().addProduct(
+        ProductService.getInstance().addProduct(
             productNameRequestBody,
             productTypeRequestBody,
             priceRequestBody,
