@@ -9,19 +9,16 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.res.ColorStateList
 import android.net.ConnectivityManager
-import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -29,12 +26,9 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.swipeassignment.model.Product
 import com.example.swipeassignment.viewmodel.ProductViewModel
 import com.example.swipeassignment.viewmodel.ProductViewModelFactory
-import kotlinx.coroutines.launch
 import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var permReqLauncher: ActivityResultLauncher<Array<String>>
-
     private lateinit var recyclerView: RecyclerView
     private lateinit var productAdapter: ProductAdapter
     private lateinit var viewModel: ProductViewModel
@@ -66,6 +60,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+
         LocalBroadcastManager.getInstance(this)
             .registerReceiver(connectivityStatusReceiver, IntentFilter("network_status"))
 
@@ -83,7 +78,7 @@ class MainActivity : AppCompatActivity() {
         val viewModelFactory = ProductViewModelFactory(this)
         viewModel = ViewModelProvider(this, viewModelFactory).get(ProductViewModel::class.java)
 
-        viewModel.products.observe(this, Observer { products ->
+        if (isConnected) viewModel.products.observe(this, Observer { products ->
             products?.let {
                 productList = it
                 productAdapter = ProductAdapter(this, it)
@@ -91,8 +86,9 @@ class MainActivity : AppCompatActivity() {
                 hideLoading()
             }
         })
-
-        viewModel.fetchProducts()
+        if (isConnected) {
+            viewModel.fetchProducts()
+        }
 
         swipeRefreshLayout.setOnRefreshListener {
             if (isConnected) {
@@ -107,7 +103,6 @@ class MainActivity : AppCompatActivity() {
                 swipeRefreshLayout.isRefreshing = false
             }
         }
-
 
         viewModel.response.observe(this, Observer {
             if (it.isNotEmpty()) {
@@ -181,11 +176,5 @@ class MainActivity : AppCompatActivity() {
         progressBar.visibility = View.GONE
         recyclerView.visibility = View.VISIBLE
         swipeRefreshLayout.visibility = View.VISIBLE
-    }
-
-
-    fun refreshData() {
-        viewModel.fetchProducts()
-        showLoading()
     }
 }

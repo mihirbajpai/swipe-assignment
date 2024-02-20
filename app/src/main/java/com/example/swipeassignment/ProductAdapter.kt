@@ -20,18 +20,14 @@ class ProductAdapter(private val context: Context, private var productList: List
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val product = productList[position]
 
-        holder.textViewName.text = "Title: ${ product.product_name }"
+        holder.textViewName.text = "Title: ${product.product_name}"
         holder.textViewPrice.text = "Price: ${product.price}$"
         holder.textViewType.text = "Type: ${product.product_type}"
         holder.textViewTax.text = "Tax: ${product.tax}%"
 
         // Load image using Glide
-        Glide.with(context)
-            .load(product.image)
-            .placeholder(R.drawable.placeholder) // Placeholder image while loading
-            .error(R.drawable.error_image) // Error image if loading fails
-            .centerCrop()
-            .into(holder.imageView)
+        Glide.with(context).load(product.image).placeholder(R.drawable.placeholder)
+            .error(R.drawable.error_image).centerCrop().into(holder.imageView)
     }
 
     override fun getItemCount(): Int {

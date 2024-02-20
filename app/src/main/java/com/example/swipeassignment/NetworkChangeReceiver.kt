@@ -10,7 +10,6 @@ class NetworkChangeReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         if (intent?.action == ConnectivityManager.CONNECTIVITY_ACTION) {
             val isConnected = isNetworkConnected(context)
-            // Send a broadcast or update UI with the connectivity status
             val connectivityIntent = Intent("network_status")
             connectivityIntent.putExtra("is_connected", isConnected)
             LocalBroadcastManager.getInstance(context!!).sendBroadcast(connectivityIntent)

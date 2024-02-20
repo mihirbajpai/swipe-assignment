@@ -38,13 +38,8 @@ class BottomSheetDialogFragment() : BottomSheetDialogFragment() {
     private lateinit var buttonSubmit: Button
 
     private lateinit var selectedFile: Uri
-
-
     private lateinit var viewModel: ProductViewModel
-
-
     private var Permissions = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
-
     private lateinit var pickImageLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreateView(
@@ -69,8 +64,9 @@ class BottomSheetDialogFragment() : BottomSheetDialogFragment() {
             val type = editTextProductType.text.toString().trim()
             val price = editTextPrice.text.toString().trim()
             val tax = editTextTax.text.toString().trim()
-            if (name.isEmpty() || type.isEmpty() || price.isEmpty() || tax.isEmpty()){
-                Toast.makeText(requireContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show()
+            if (name.isEmpty() || type.isEmpty() || price.isEmpty() || tax.isEmpty()) {
+                Toast.makeText(requireContext(), "Please fill in all fields", Toast.LENGTH_SHORT)
+                    .show()
             } else {
                 upload(name, type, price, tax, selectedFile)
             }
