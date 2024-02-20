@@ -1,13 +1,13 @@
 package com.example.swipeassignment.repository
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.net.Uri
 import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
-import com.example.swipeassignment.MainActivity
 import com.example.swipeassignment.model.Product
 import com.example.swipeassignment.service.ProductService
-import com.example.swipeassignment.postdata.utils.FileUtils
+import com.example.swipeassignment.utils.FileUtils
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -19,13 +19,10 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
 
-class ProductRepository(private val apiService: ProductService) {
-
-    val main: MainActivity = MainActivity()
-    val ctx = main.getContext()
+class ProductRepository(private val ctx: Context) {
 
     suspend fun fetchProducts(): List<Product> {
-        return apiService.getProducts()
+        return ProductService.getInstance().getProducts()
     }
 
     val connectionError = MutableLiveData("")

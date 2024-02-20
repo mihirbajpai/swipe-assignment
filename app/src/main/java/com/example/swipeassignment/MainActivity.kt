@@ -24,8 +24,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.swipeassignment.model.Product
-import com.example.swipeassignment.network.RetrofitClient
-import com.example.swipeassignment.repository.ProductRepository
 import com.example.swipeassignment.viewmodel.ProductViewModel
 import com.example.swipeassignment.viewmodel.ProductViewModelFactory
 import java.util.Locale
@@ -76,8 +74,7 @@ class MainActivity : AppCompatActivity() {
 
         progressBar.visibility = View.VISIBLE
 
-        val repository = ProductRepository(RetrofitClient.productService)
-        val viewModelFactory = ProductViewModelFactory(repository)
+        val viewModelFactory = ProductViewModelFactory(this)
 
         viewModel = ViewModelProvider(this, viewModelFactory).get(ProductViewModel::class.java)
 

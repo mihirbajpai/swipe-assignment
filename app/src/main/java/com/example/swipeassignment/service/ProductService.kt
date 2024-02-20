@@ -31,6 +31,7 @@ interface ProductService {
         var retrofitService: ProductService? = null
         fun getInstance(): ProductService {
             if (retrofitService == null) {
+
                 val gson = GsonBuilder()
                     .setLenient()
                     .create()

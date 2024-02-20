@@ -19,15 +19,15 @@ import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.swipeassignment.postdata.ui.AddProductViewModel
-import com.example.swipeassignment.postdata.ui.ViewModelFactory
+import com.example.swipeassignment.viewmodel.ProductViewModel
+import com.example.swipeassignment.viewmodel.ProductViewModelFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class UploadData : AppCompatActivity() {
     private lateinit var permReqLauncher: ActivityResultLauncher<Array<String>>
-    private lateinit var addProductViewModel: AddProductViewModel
+    private lateinit var viewModel: ProductViewModel
     private lateinit var selectedFile: Uri
     private lateinit var tvFile: TextView
     private lateinit var prodName: EditText
@@ -57,21 +57,21 @@ class UploadData : AppCompatActivity() {
 
         imageViewPreview = findViewById(R.id.imageViewPreview)
 
-        val viewModelFactory = ViewModelFactory(this)
-        addProductViewModel =
-            ViewModelProvider(this, viewModelFactory).get(AddProductViewModel::class.java)
+        val viewModelFactory = ProductViewModelFactory(this)
+        viewModel =
+            ViewModelProvider(this, viewModelFactory).get(ProductViewModel::class.java)
 
-        addProductViewModel.response.observe(this, Observer {
+        viewModel.response.observe(this, Observer {
             if (it.isNotEmpty()) {
                 Toast.makeText(this, it, Toast.LENGTH_LONG).show()
-                addProductViewModel.rest()
+                viewModel.rest()
             }
         })
 
-        addProductViewModel.connectionError.observe(this, Observer {
+        viewModel.connectionError.observe(this, Observer {
             if (it.isNotEmpty()) {
                 Toast.makeText(this, it, Toast.LENGTH_LONG).show()
-                addProductViewModel.rest()
+                viewModel.rest()
             }
         })
 
@@ -101,10 +101,10 @@ class UploadData : AppCompatActivity() {
     private fun upload(name: String, type: String, price: String, tax: String) {
         Toast.makeText(this, "uploading...", Toast.LENGTH_SHORT).show()
 
-        addProductViewModel.viewModelScope.launch {
+        viewModel.viewModelScope.launch {
             try {
                 withContext(Dispatchers.IO) {
-                    addProductViewModel.upload(name, type, price, tax, selectedFile)
+                    viewModel.upload(name, type, price, tax, selectedFile)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
