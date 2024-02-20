@@ -1,7 +1,7 @@
-<!-- bottom_sheet_layout.xml -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/white"
     android:orientation="vertical"
     android:padding="16dp">
 
@@ -14,14 +14,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:text="Product Name:" />
+            android:text="Product Name:"
+            android:textColor="@color/black"
+            android:textStyle="bold" />
 
         <EditText
             android:id="@+id/editTextProductName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="Enter Product Name.*" />
+            android:hint="Enter Product Name.*"
+            android:textColor="@color/black" />
     </LinearLayout>
 
     <LinearLayout
@@ -34,14 +37,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:text="Product Type:" />
+            android:text="Product Type:"
+            android:textColor="@color/black"
+            android:textStyle="bold" />
 
         <EditText
             android:id="@+id/editTextProductType"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="Enter Product Type.*" />
+            android:hint="Enter Product Type.*"
+            android:textColor="@color/black" />
     </LinearLayout>
 
     <LinearLayout
@@ -54,15 +60,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:text="Selling Price:" />
+            android:text="Selling Price:"
+            android:textColor="@color/black"
+            android:textStyle="bold" />
 
         <EditText
             android:id="@+id/editTextPrice"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:hint="Enter Selling Price.*"
             android:inputType="number"
-            android:hint="Enter Selling Price.*" />
+            android:textColor="@color/black" />
     </LinearLayout>
 
     <LinearLayout
@@ -75,15 +84,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:text="Tax Rate:" />
+            android:text="Tax Rate:"
+            android:textColor="@color/black"
+            android:textStyle="bold" />
 
         <EditText
             android:id="@+id/editTextTax"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:hint="Enter Tax Rate.*"
             android:inputType="number"
-            android:hint="Enter Tax Rate.*" />
+            android:textColor="@color/black" />
     </LinearLayout>
 
     <Button
@@ -101,6 +113,7 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_marginTop="8dp"
+        android:scaleType="centerCrop"
         android:visibility="gone" />
 
     <Button

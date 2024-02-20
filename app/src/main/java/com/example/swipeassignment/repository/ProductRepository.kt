@@ -5,6 +5,7 @@ import android.content.Context
 import android.net.Uri
 import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
+import com.example.swipeassignment.MainActivity
 import com.example.swipeassignment.model.Product
 import com.example.swipeassignment.service.ProductService
 import com.example.swipeassignment.utils.FileUtils
@@ -19,7 +20,10 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
 
-class ProductRepository(private val ctx: Context) {
+class ProductRepository(private val context: Context) {
+
+    private var mainActivity: MainActivity=MainActivity()
+
 
     suspend fun fetchProducts(): List<Product> {
         return ProductService.getInstance().getProducts()
@@ -67,13 +71,14 @@ class ProductRepository(private val ctx: Context) {
                     try {
                         if (response.code() == 200) {
                             serverResponse.value = "uploaded"
-                            Toast.makeText(ctx, "Uploaded", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Data is uploaded.", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Swipe to refresh.", Toast.LENGTH_SHORT).show()
 
                         } else {
 
                             connectionError.value = response.errorBody().toString()
                             Toast.makeText(
-                                ctx,
+                                context,
                                 "error..." + response.toString(),
                                 Toast.LENGTH_SHORT
                             ).show()
@@ -81,7 +86,7 @@ class ProductRepository(private val ctx: Context) {
 
                     } catch (e: Exception) {
                         connectionError.value = e.message.toString()
-                        Toast.makeText(ctx, e.toString(), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show()
 
                     }
                 }
@@ -99,7 +104,7 @@ class ProductRepository(private val ctx: Context) {
     private fun prepareFilePart(partName: String, fileUri: Uri): MultipartBody.Part {
 
 
-        val file: File = FileUtils.getFile(ctx, fileUri)
+        val file: File = FileUtils.getFile(context, fileUri)
 
         val requestFile: RequestBody = file.asRequestBody("image/*".toMediaTypeOrNull());
         return MultipartBody.Part.createFormData(partName, file.name, requestFile)

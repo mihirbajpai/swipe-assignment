@@ -9,16 +9,19 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.res.ColorStateList
 import android.net.ConnectivityManager
+import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -26,9 +29,11 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.swipeassignment.model.Product
 import com.example.swipeassignment.viewmodel.ProductViewModel
 import com.example.swipeassignment.viewmodel.ProductViewModelFactory
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var permReqLauncher: ActivityResultLauncher<Array<String>>
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var productAdapter: ProductAdapter
@@ -69,13 +74,13 @@ class MainActivity : AppCompatActivity() {
 
         progressBar = findViewById(R.id.progressBar)
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
-        val color = ContextCompat.getColor(this, R.color.black)
-        progressBar.indeterminateTintList = ColorStateList.valueOf(color)
 
+        val color = ContextCompat.getColor(this, R.color.black)
+
+        progressBar.indeterminateTintList = ColorStateList.valueOf(color)
         progressBar.visibility = View.VISIBLE
 
         val viewModelFactory = ProductViewModelFactory(this)
-
         viewModel = ViewModelProvider(this, viewModelFactory).get(ProductViewModel::class.java)
 
         viewModel.products.observe(this, Observer { products ->
@@ -86,6 +91,8 @@ class MainActivity : AppCompatActivity() {
                 hideLoading()
             }
         })
+
+        viewModel.fetchProducts()
 
         swipeRefreshLayout.setOnRefreshListener {
             if (isConnected) {
@@ -100,8 +107,23 @@ class MainActivity : AppCompatActivity() {
                 swipeRefreshLayout.isRefreshing = false
             }
         }
-    }
 
+
+        viewModel.response.observe(this, Observer {
+            if (it.isNotEmpty()) {
+                Toast.makeText(this, it, Toast.LENGTH_LONG).show()
+                viewModel.rest()
+            }
+        })
+
+        viewModel.connectionError.observe(this, Observer {
+            if (it.isNotEmpty()) {
+                Toast.makeText(this, it, Toast.LENGTH_LONG).show()
+                viewModel.rest()
+            }
+        })
+
+    }
 
     //Action Bar
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -122,9 +144,8 @@ class MainActivity : AppCompatActivity() {
         })
 
         addItem.setOnMenuItemClickListener {
-//            showBottomSheetDialog()
-
-            startActivity(Intent(this, UploadData::class.java))
+            val bottomSheetFragment = BottomSheetDialogFragment()
+            bottomSheetFragment.show(supportFragmentManager, bottomSheetFragment.tag)
 
             true
         }
@@ -162,7 +183,9 @@ class MainActivity : AppCompatActivity() {
         swipeRefreshLayout.visibility = View.VISIBLE
     }
 
-    fun getContext(): Context {
-        return this;
+
+    fun refreshData() {
+        viewModel.fetchProducts()
+        showLoading()
     }
 }

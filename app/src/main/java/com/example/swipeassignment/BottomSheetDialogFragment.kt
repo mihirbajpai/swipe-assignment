@@ -1,7 +1,10 @@
 package com.example.swipeassignment
 
-import android.app.Activity.RESULT_OK
+import android.Manifest
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -12,9 +15,19 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import com.example.swipeassignment.viewmodel.ProductViewModel
+import com.example.swipeassignment.viewmodel.ProductViewModelFactory
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-class BottomSheetDialogFragment : BottomSheetDialogFragment() {
+class BottomSheetDialogFragment() : BottomSheetDialogFragment() {
 
     private lateinit var editTextProductName: EditText
     private lateinit var editTextProductType: EditText
@@ -23,17 +36,19 @@ class BottomSheetDialogFragment : BottomSheetDialogFragment() {
     private lateinit var buttonChooseImage: Button
     private lateinit var imageViewPreview: ImageView
     private lateinit var buttonSubmit: Button
-    private var productName = ""
-    private var productType = ""
-    private var price = ""
-    private var tax = ""
 
-    private var imageUri: Uri? = null
+    private lateinit var selectedFile: Uri
+
+
+    private lateinit var viewModel: ProductViewModel
+
+
+    private var Permissions = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+
+    private lateinit var pickImageLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.bottom_sheet_layout, container, false)
 
@@ -46,56 +61,78 @@ class BottomSheetDialogFragment : BottomSheetDialogFragment() {
         buttonSubmit = view.findViewById(R.id.buttonSubmit)
 
         buttonChooseImage.setOnClickListener {
-            openGallery()
+            pickImage()
         }
-
-        productName = editTextProductName.text.toString()
-        productType = editTextProductType.text.toString()
-        price = editTextPrice.text.toString()
-        tax = editTextTax.text.toString()
 
         buttonSubmit.setOnClickListener {
-            if (productName.isEmpty()) {
-                Toast.makeText(context, "Please enter product name first.", Toast.LENGTH_SHORT)
-                    .show()
-            } else if (productType.isEmpty()) {
-                Toast.makeText(context, "Please enter product type first.", Toast.LENGTH_SHORT)
-                    .show()
-            } else if (price.isEmpty()) {
-                Toast.makeText(context, "Please enter price first.", Toast.LENGTH_SHORT)
-                    .show()
-            } else if (tax.isEmpty()) {
-                Toast.makeText(context, "Please enter tax first.", Toast.LENGTH_SHORT)
-                    .show()
+            val name = editTextProductName.text.toString().trim()
+            val type = editTextProductType.text.toString().trim()
+            val price = editTextPrice.text.toString().trim()
+            val tax = editTextTax.text.toString().trim()
+            if (name.isEmpty() || type.isEmpty() || price.isEmpty() || tax.isEmpty()){
+                Toast.makeText(requireContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show()
             } else {
-
+                upload(name, type, price, tax, selectedFile)
             }
-            dismiss()
         }
+
+        val viewModelFactory = ProductViewModelFactory(requireContext())
+        viewModel = ViewModelProvider(this, viewModelFactory).get(ProductViewModel::class.java)
+
+        pickImageLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                if (result.resultCode == Activity.RESULT_OK) {
+                    val data: Intent? = result.data
+                    if (data != null && data.data != null) {
+                        selectedFile = data.data!!
+                        imageViewPreview.setImageURI(selectedFile)
+                        imageViewPreview.visibility = View.VISIBLE
+                    }
+                }
+            }
 
         return view
     }
 
-    private fun openGallery() {
-        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        startActivityForResult(intent, REQUEST_CODE_PICK_IMAGE)
-    }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_CODE_PICK_IMAGE && resultCode == RESULT_OK) {
-            data?.data?.let { uri ->
-                imageUri = uri
-                imageViewPreview.setImageURI(uri)
-                imageViewPreview.visibility = View.VISIBLE
-                buttonChooseImage.visibility = View.GONE
-                buttonSubmit.visibility = View.VISIBLE
+    fun upload(name: String, type: String, price: String, tax: String, selectedFile: Uri) {
+        viewModel.viewModelScope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    viewModel.upload(name, type, price, tax, selectedFile)
+                }
+                dismiss()
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }
 
-    companion object {
-        private const val REQUEST_CODE_PICK_IMAGE = 100
+
+    private fun pickImage() {
+        if (hasPermissions(requireContext(), Permissions)) {
+            val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+            pickImageLauncher.launch(intent)
+        } else {
+            ActivityCompat.requestPermissions(
+                requireActivity(), Permissions, REQUEST_EXTERNAL_STORAGE_PERMISSION
+            )
+        }
     }
 
+    private fun hasPermissions(context: Context, permissions: Array<String>): Boolean {
+        for (permission in permissions) {
+            if (ActivityCompat.checkSelfPermission(
+                    context, permission
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                return false
+            }
+        }
+        return true
+    }
+
+    companion object {
+        const val REQUEST_EXTERNAL_STORAGE_PERMISSION = 101
+    }
 }
