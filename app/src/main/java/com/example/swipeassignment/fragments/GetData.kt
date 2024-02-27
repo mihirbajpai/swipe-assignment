@@ -1,8 +1,6 @@
-package com.example.swipeassignment
-//Mihir Bajpai
+package com.example.swipeassignment.fragments
 
-
-import ProductAdapter
+import com.example.swipeassignment.adapter.ProductAdapter
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -10,25 +8,31 @@ import android.content.IntentFilter
 import android.content.res.ColorStateList
 import android.net.ConnectivityManager
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.Menu
+import android.view.MenuInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.example.swipeassignment.network.NetworkChangeReceiver
+import com.example.swipeassignment.R
 import com.example.swipeassignment.model.Product
 import com.example.swipeassignment.viewmodel.ProductViewModel
 import com.example.swipeassignment.viewmodel.ProductViewModelFactory
 import java.util.Locale
 
-class MainActivity : AppCompatActivity() {
+class GetData : Fragment() {
+
     private lateinit var recyclerView: RecyclerView
     private lateinit var productAdapter: ProductAdapter
     private lateinit var viewModel: ProductViewModel
@@ -40,12 +44,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var connectivityStatusReceiver: BroadcastReceiver
     private var isConnected: Boolean = true
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val view = inflater.inflate(R.layout.fragment_get_data, container, false)
 
         networkChangeReceiver = NetworkChangeReceiver()
-        registerReceiver(
+        activity?.registerReceiver(
             networkChangeReceiver, IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
         )
 
@@ -53,35 +59,35 @@ class MainActivity : AppCompatActivity() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 isConnected = intent?.getBooleanExtra("is_connected", false) ?: false
                 if (!isConnected) {
-                    Toast.makeText(this@MainActivity, "You are offline.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "You are offline.", Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(this@MainActivity, "You are online.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "You are online.", Toast.LENGTH_SHORT).show()
                     viewModel.fetchProducts()
                 }
             }
         }
 
-        LocalBroadcastManager.getInstance(this)
+        LocalBroadcastManager.getInstance(requireContext())
             .registerReceiver(connectivityStatusReceiver, IntentFilter("network_status"))
 
-        recyclerView = findViewById(R.id.recyclerView)
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView = view.findViewById(R.id.recyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        progressBar = findViewById(R.id.progressBar)
-        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
+        progressBar = view.findViewById(R.id.progressBar)
+        swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout)
 
-        val color = ContextCompat.getColor(this, R.color.black)
+        val color = ContextCompat.getColor(requireContext(), R.color.black)
 
         progressBar.indeterminateTintList = ColorStateList.valueOf(color)
         progressBar.visibility = View.VISIBLE
 
-        val viewModelFactory = ProductViewModelFactory(this)
+        val viewModelFactory = ProductViewModelFactory(requireContext())
         viewModel = ViewModelProvider(this, viewModelFactory).get(ProductViewModel::class.java)
 
-        if (isConnected) viewModel.products.observe(this, Observer { products ->
+        if (isConnected) viewModel.products.observe(viewLifecycleOwner, Observer { products ->
             products?.let {
                 productList = it
-                productAdapter = ProductAdapter(this, it)
+                productAdapter = ProductAdapter(requireContext(), it)
                 recyclerView.adapter = productAdapter
                 hideLoading()
             }
@@ -96,7 +102,7 @@ class MainActivity : AppCompatActivity() {
                 showLoading()
             } else {
                 Toast.makeText(
-                    this,
+                    requireContext(),
                     "You are offline. Please check your internet connection.",
                     Toast.LENGTH_SHORT
                 ).show()
@@ -104,25 +110,27 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        viewModel.response.observe(this, Observer {
+        viewModel.response.observe(viewLifecycleOwner, Observer {
             if (it.isNotEmpty()) {
-                Toast.makeText(this, it, Toast.LENGTH_LONG).show()
+                Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
                 viewModel.rest()
             }
         })
 
-        viewModel.connectionError.observe(this, Observer {
+        viewModel.connectionError.observe(viewLifecycleOwner, Observer {
             if (it.isNotEmpty()) {
-                Toast.makeText(this, it, Toast.LENGTH_LONG).show()
+                Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
                 viewModel.rest()
             }
         })
 
+        setHasOptionsMenu(true)
+
+        return view
     }
 
-    //Action Bar
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.main_menu, menu)
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.main_menu, menu)
         val searchItem = menu.findItem(R.id.action_search)
         val addItem = menu.findItem(R.id.action_add)
         val searchView = searchItem.actionView as SearchView?
@@ -140,14 +148,13 @@ class MainActivity : AppCompatActivity() {
 
         addItem.setOnMenuItemClickListener {
             val bottomSheetFragment = BottomSheetDialogFragment()
-            bottomSheetFragment.show(supportFragmentManager, bottomSheetFragment.tag)
+            bottomSheetFragment.show(requireFragmentManager(), bottomSheetFragment.tag)
 
             true
         }
-        return true
+        super.onCreateOptionsMenu(menu, inflater)
     }
 
-    //Search Item
     private fun filterProductList(query: String) {
         val filteredList: MutableList<Product> = ArrayList<Product>()
         for (product in productList) {
@@ -162,7 +169,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    //Loading item
     private fun showLoading() {
         swipeRefreshLayout.isRefreshing = true
         progressBar.visibility = View.VISIBLE
@@ -176,5 +182,12 @@ class MainActivity : AppCompatActivity() {
         progressBar.visibility = View.GONE
         recyclerView.visibility = View.VISIBLE
         swipeRefreshLayout.visibility = View.VISIBLE
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        activity?.unregisterReceiver(networkChangeReceiver)
+        LocalBroadcastManager.getInstance(requireContext())
+            .unregisterReceiver(connectivityStatusReceiver)
     }
 }

@@ -1,4 +1,4 @@
-package com.example.swipeassignment
+package com.example.swipeassignment.network
 
 import android.content.BroadcastReceiver
 import android.content.Context

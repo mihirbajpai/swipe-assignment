@@ -5,7 +5,7 @@ import android.content.Context
 import android.net.Uri
 import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
-import com.example.swipeassignment.MainActivity
+import com.example.swipeassignment.activity.MainActivity
 import com.example.swipeassignment.model.Product
 import com.example.swipeassignment.service.ProductService
 import com.example.swipeassignment.utils.FileUtils
@@ -22,7 +22,7 @@ import java.io.File
 
 class ProductRepository(private val context: Context) {
 
-    private var mainActivity: MainActivity=MainActivity()
+    private var mainActivity: MainActivity = MainActivity()
 
 
     suspend fun fetchProducts(): List<Product> {

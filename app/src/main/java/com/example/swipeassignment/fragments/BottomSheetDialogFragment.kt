@@ -1,4 +1,4 @@
-package com.example.swipeassignment
+package com.example.swipeassignment.fragments
 
 import android.Manifest
 import android.app.Activity
@@ -20,6 +20,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.swipeassignment.R
 import com.example.swipeassignment.viewmodel.ProductViewModel
 import com.example.swipeassignment.viewmodel.ProductViewModelFactory
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -37,7 +38,7 @@ class BottomSheetDialogFragment() : BottomSheetDialogFragment() {
     private lateinit var imageViewPreview: ImageView
     private lateinit var buttonSubmit: Button
 
-    private lateinit var selectedFile: Uri
+    private var selectedFile: Uri? = null
     private lateinit var viewModel: ProductViewModel
     private var Permissions = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
     private lateinit var pickImageLauncher: ActivityResultLauncher<Intent>
@@ -91,16 +92,20 @@ class BottomSheetDialogFragment() : BottomSheetDialogFragment() {
     }
 
 
-    fun upload(name: String, type: String, price: String, tax: String, selectedFile: Uri) {
-        viewModel.viewModelScope.launch {
-            try {
-                withContext(Dispatchers.IO) {
-                    viewModel.upload(name, type, price, tax, selectedFile)
+    fun upload(name: String, type: String, price: String, tax: String, selectedFile: Uri?) {
+        if (selectedFile != null) {
+            viewModel.viewModelScope.launch {
+                try {
+                    withContext(Dispatchers.IO) {
+                        viewModel.upload(name, type, price, tax, selectedFile)
+                    }
+                    dismiss()
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
-                dismiss()
-            } catch (e: Exception) {
-                e.printStackTrace()
             }
+        } else {
+            Toast.makeText(requireContext(), "Please select an image", Toast.LENGTH_SHORT).show()
         }
     }
 

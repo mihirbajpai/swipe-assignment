@@ -1,4 +1,4 @@
-package com.example.swipeassignment
+package com.example.swipeassignment.activity
 
 import android.content.Intent
 import android.os.Bundle
@@ -7,6 +7,7 @@ import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.example.swipeassignment.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
